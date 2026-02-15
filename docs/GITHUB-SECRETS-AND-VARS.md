@@ -4,26 +4,7 @@ Use this when configuring **Settings → Secrets and variables → Actions** for
 
 ---
 
-## Quick start: Manual infra + GitHub deploy (recommended for you)
-
-Create everything in Azure by hand, then use **only** the **multiplication-azure-deploy** workflow to deploy the app.
-
-1. **In Azure Portal (one-time)**  
-   - Create a **resource group** (e.g. `mathhelper-rg`, region e.g. `eastus`).  
-   - Create an **App Service** (Web App): same RG, name = e.g. `mathhelper-mult-prod`, Runtime = **Node 25**, create a new Free F1 plan if prompted.
-
-2. **In GitHub repo**  
-   - **Variables:** `MULT_APP_NAME` = exact Web App name you created (e.g. `mathhelper-mult-prod`).  
-   - **Secrets:** `AZURE_PUBLISH_PROFILE` = full contents of the publish profile from the Web App (**Get publish profile** in the portal).
-
-3. **Deploy**  
-   - Actions → **Multiplication - Deploy to Azure Web App** → **Run workflow**.
-
-You do **not** need to run the Bicep or Terraform workflows or set any other secrets for this path.
-
----
-
-## Quick start: Static Web App (no publish profile)
+## Quick start: Static Web App
 
 Use **Azure Static Web Apps** for the Multiplication app. You use a **deployment token**, not a publish profile.
 
@@ -64,25 +45,10 @@ Add these under the **Variables** tab.
 |----------|---------|---------|
 | `RESOURCE_GROUP` | `mathhelper-rg` | Bicep deploy, Terraform deploy |
 | `LOCATION` | `eastus` | Bicep deploy, Terraform deploy |
-| `MULT_APP_NAME` | `mathhelper-multiplication` | Bicep deploy, Terraform deploy, Azure Web App deploy (multiplication) |
-
-**Suggested value for `MULT_APP_NAME`:**
-- Must be **globally unique** across all of Azure, 2–60 characters, letters/numbers/hyphens only.
-- Examples: `mathhelper-mult-prod`, `mathhelper-mult-boogie`, `mathhelper-mult-vspro`.
+| `MULT_APP_NAME` | `mathhelper-multiplication` | Bicep deploy, Terraform deploy only |
 
 **Notes:**
 - Prefer a single Azure region (e.g. `eastus`) to stay within your $50 credit.
-
----
-
-## Two ways to get your app running
-
-| Path | When to use | What you need |
-|------|------------------|----------------|
-| **A: Manual infra** | You can’t use Entra ID / App registrations (e.g. no access in your tenant). | Create resource group + Web App **manually** in Azure Portal. Only **one secret**: `AZURE_PUBLISH_PROFILE`. |
-| **B: Bicep or Terraform** | You can create an App registration (service principal) in Entra ID. | Infra is created by GitHub Actions. You need **AZURE_CREDENTIALS** (Bicep) or **ARM_*** secrets (Terraform) **and** later **AZURE_PUBLISH_PROFILE** to deploy the app. |
-
-If you don’t have access to Entra ID (e.g. it’s your company’s directory), use **Path A** below.
 
 ---
 
@@ -112,12 +78,6 @@ All four come from the same **service principal** and subscription. See [Where t
 | Secret | Where to get it |
 |--------|------------------|
 | `MULT_STATIC_WEB_APPS_API_TOKEN` | From the Static Web App in Azure Portal: **Overview** → **Manage deployment token** → copy. See [Where to get the deployment token](#where-to-get-the-static-web-app-deployment-token) below. |
-
-### Deploy app to the Web App (App Service, after infra exists)
-
-| Secret | Where to get it |
-|--------|------------------|
-| `AZURE_PUBLISH_PROFILE` | From the Web App in Azure Portal. See [Where to get AZURE_PUBLISH_PROFILE](#where-to-get-azure_publish_profile) below. |
 
 ---
 
@@ -175,17 +135,9 @@ Used by **Multiplication - Deploy to Static Web App**. No publish profile.
 2. **Overview** (or **Manage deployment token** in the left menu) → **Manage deployment token** → **Copy**.
 3. In GitHub: **Secrets** → **New repository secret** → Name: `MULT_STATIC_WEB_APPS_API_TOKEN`, Value: the token you copied.
 
-### 5. Where to get AZURE_PUBLISH_PROFILE
 
-Used by the **Azure Web App deploy** workflow. Get this **after** the Web App has been created (by Bicep or Terraform).
 
-1. **Azure Portal** → **App Service** (or search “App Services”) → open your Multiplication app (name = `vars.MULT_APP_NAME`).
-2. Top menu → **Get publish profile** (or **Download publish profile**).
-3. Open the downloaded `.PublishSettings` file in a text editor, copy **all** of its contents.
-4. In GitHub: **Secrets → New repository secret** → Name: `AZURE_PUBLISH_PROFILE`, Value: paste the full contents.
-
----
-
+ (or search “App Services”) 
 ## Summary: minimum to run each workflow
 
 | Workflow | Variables | Secrets |
@@ -193,34 +145,13 @@ Used by the **Azure Web App deploy** workflow. Get this **after** the Web App ha
 | **multiplication-static-deploy** (Static Web App) | None | MULT_STATIC_WEB_APPS_API_TOKEN |
 | **multiplication-bicep-deploy** | RESOURCE_GROUP, LOCATION, MULT_APP_NAME | AZURE_CREDENTIALS |
 | **multiplication-terraform-deploy** | RESOURCE_GROUP, LOCATION, MULT_APP_NAME | ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID |
-| **multiplication-azure-deploy** (App Service) | MULT_APP_NAME | AZURE_PUBLISH_PROFILE |
-
-For **Static Web App**: create the resource in Azure, copy the deployment token, add `MULT_STATIC_WEB_APPS_API_TOKEN`, then run **multiplication-static-deploy**. No publish profile.
+For the Multiplication app, use **multiplication-static-deploy**: create the Static Web App in Azure, copy the deployment token, add `MULT_STATIC_WEB_APPS_API_TOKEN`, then run the workflow.
 
 ---
 
-## Path A: No Entra ID – create infra manually, deploy with GitHub
 
-If you can’t use Entra ID / App registrations (e.g. your “Entra ID” is the company tenant), you can skip Bicep/Terraform and create everything once in the portal.
+If you can’t use Entra ID / App registrations (e.g. your “Entra ID” is the company tenant), 
 
-1. **Create resource group (manual, one-time)**  
-   Azure Portal → **Resource groups** → **Create** → Name = your `RESOURCE_GROUP` (e.g. `mathhelper-rg`), Region = your `LOCATION` (e.g. `eastus`).
 
-2. **Create Web App (manual, one-time)**  
-   Azure Portal → **App Service** → **Create** →  
-   - Resource group = the one you created  
-   - Name = your `MULT_APP_NAME` (e.g. `mathhelper-mult-prod`)  
-   - Publish = **Code**, Runtime = **Node 25**, Region = same as RG  
-   - Plan = create new (e.g. Free F1). Create the app.
 
-3. **Set GitHub variables**  
-   In the repo: **Settings → Secrets and variables → Actions → Variables**  
-   - `RESOURCE_GROUP` = same name as the RG you created  
-   - `LOCATION` = same region (e.g. `eastus`)  
-   - `MULT_APP_NAME` = exact Web App name you used  
 
-4. **Get publish profile and add secret**  
-   Azure Portal → your **App Service** → **Get publish profile** → open the file, copy **all** content → GitHub **Secrets** → **AZURE_PUBLISH_PROFILE**.
-
-5. **Deploy from GitHub**  
-   Use only the **multiplication-azure-deploy** workflow (Run workflow). It will build and deploy your app. You do **not** run the Bicep or Terraform workflows in this path.
