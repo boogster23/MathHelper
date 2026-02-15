@@ -1,0 +1,30 @@
+name: Infra - Bicep deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        required: true
+        default: my-rg
+      location:
+        required: true
+        default: eastus
+
+jobs:
+  deploy-bicep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy Bicep
+        run: |
+          az group create -n ${{ github.event.inputs.resource_group }} - l ${{ github.event.inputs.location }}
+          az deployment group create \
+            --resource-group ${{ github.event.inputs.resource_group }} \
+            --template-file deployment/bicep/main.bicep \
+            --parameters appName=${{ secrets.APP_NAME }} location=${{ github.event.inputs.location }}
