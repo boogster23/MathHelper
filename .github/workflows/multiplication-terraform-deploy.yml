@@ -1,0 +1,45 @@
+name: Multiplication - Terraform deploy
+
+# Repository variables (Settings > Secrets and variables > Actions > Variables):
+#   RESOURCE_GROUP, LOCATION, MULT_APP_NAME
+# Secrets: ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform init
+        working-directory: deployment/multiplication-terraform
+        run: terraform init
+
+      - name: Terraform plan
+        working-directory: deployment/multiplication-terraform
+        env:
+          RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
+          LOCATION: ${{ vars.LOCATION }}
+          MULT_APP_NAME: ${{ vars.MULT_APP_NAME }}
+        run: |
+          terraform plan -out=tfplan \
+            -var="app_name=$MULT_APP_NAME" \
+            -var="resource_group_name=$RESOURCE_GROUP" \
+            -var="location=$LOCATION"
+
+      - name: Terraform apply
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: deployment/multiplication-terraform
+        run: terraform apply -input=false -auto-approve tfplan

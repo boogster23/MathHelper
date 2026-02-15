@@ -2,9 +2,24 @@ provider "azurerm" {
     features {}
 }
 
+variable "app_name" {
+  description = "The name of the web app"
+  type        = string
+}
+
+variable "resource_group_name" {
+  description = "Name of the resource group"
+  type        = string
+}
+
+variable "location" {
+  description = "Azure region"
+  type        = string
+}
+
 resource "azurerm_resource_group" "example" {
-    name = ""
-    location = "East US"
+    name     = var.resource_group_name
+    location = var.location
 }
 
 resource "azurerm_app_service_plan" "example" {
@@ -26,9 +41,4 @@ resource "azurerm_app_service" "example" {
     app_settings = {
       "WEBSITE_NODE_DEFAULT_VERSION" = "25"
     }
-}
-
-variable "app_name" {
-  description = "The name of the web app"
-  type        = string
 }
