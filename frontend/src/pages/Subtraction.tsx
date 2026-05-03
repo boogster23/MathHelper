@@ -1,18 +1,38 @@
-import { useState } from 'react';
-import { Minus, User, GraduationCap, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Minus, User, GraduationCap, ArrowLeft, Loader2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import ProblemGenerator from '../components/ProblemGenerator';
 import ProblemDisplay from '../components/ProblemDisplay';
+import { api } from '../services/api';
 
 function SubtractionPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [studentName, setStudentName] = useState('');
   const [grade, setGrade] = useState('');
   const [numProblems, setNumProblems] = useState(20);
   const [firstDigits, setFirstDigits] = useState(2);
   const [secondDigits, setSecondDigits] = useState(1);
   const [problems, setProblems] = useState<Array<{ num1: number; num2: number }>>([]);
+  const [loading, setLoading] = useState(false);
 
-  const generateProblems = () => {
+  useEffect(() => {
+    const setId = searchParams.get('set');
+    if (setId && problems.length === 0) {
+      setLoading(true);
+      api.getProblemSet(setId)
+        .then(data => {
+          setProblems(data.problems_data);
+        })
+        .catch(err => {
+          console.error("Error loading problem set:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [searchParams]);
+
+  const generateProblems = async () => {
     const newProblems = [];
     for (let i = 0; i < numProblems; i++) {
       let num1 = generateRandomNumber(firstDigits);
@@ -25,7 +45,15 @@ function SubtractionPage() {
       
       newProblems.push({ num1, num2 });
     }
+    
     setProblems(newProblems);
+    
+    try {
+      const setId = await api.saveProblemSet('subtraction', newProblems);
+      setSearchParams({ set: setId });
+    } catch (err) {
+      console.error("Failed to save problems to backend:", err);
+    }
   };
 
   const generateRandomNumber = (digits: number): number => {
@@ -94,7 +122,14 @@ function SubtractionPage() {
             />
           </div>
 
-          {problems.length > 0 && (
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
+              <Loader2 className="w-12 h-12 text-orange-600 animate-spin" />
+              <p className="text-gray-600 font-medium">Loading problem set...</p>
+            </div>
+          )}
+
+          {!loading && problems.length > 0 && (
             <div className="space-y-4">
               <ProblemDisplay
                 studentName={studentName}

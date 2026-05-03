@@ -1,18 +1,38 @@
-import { useState } from 'react';
-import { Divide, User, GraduationCap, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Divide, User, GraduationCap, ArrowLeft, Loader2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import ProblemGenerator from '../components/ProblemGenerator';
 import ProblemDisplay from '../components/ProblemDisplay';
+import { api } from '../services/api';
 
 function DivisionPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [studentName, setStudentName] = useState('');
   const [grade, setGrade] = useState('');
   const [numProblems, setNumProblems] = useState(20);
   const [quotientDigits, setQuotientDigits] = useState(1);
   const [divisorDigits, setDivisorDigits] = useState(1);
   const [problems, setProblems] = useState<Array<{ num1: number; num2: number }>>([]);
+  const [loading, setLoading] = useState(false);
 
-  const generateProblems = () => {
+  useEffect(() => {
+    const setId = searchParams.get('set');
+    if (setId && problems.length === 0) {
+      setLoading(true);
+      api.getProblemSet(setId)
+        .then(data => {
+          setProblems(data.problems_data);
+        })
+        .catch(err => {
+          console.error("Error loading problem set:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [searchParams]);
+
+  const generateProblems = async () => {
     const newProblems = [];
     for (let i = 0; i < numProblems; i++) {
       // To ensure a whole number result with no remainders:
@@ -25,7 +45,15 @@ function DivisionPage() {
       
       newProblems.push({ num1, num2 });
     }
+    
     setProblems(newProblems);
+    
+    try {
+      const setId = await api.saveProblemSet('division', newProblems);
+      setSearchParams({ set: setId });
+    } catch (err) {
+      console.error("Failed to save problems to backend:", err);
+    }
   };
 
   const num1_value = (divisor: number, quotient: number): number => {
@@ -100,7 +128,14 @@ function DivisionPage() {
             />
           </div>
 
-          {problems.length > 0 && (
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
+              <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+              <p className="text-gray-600 font-medium">Loading problem set...</p>
+            </div>
+          )}
+
+          {!loading && problems.length > 0 && (
             <div className="space-y-4">
               <ProblemDisplay
                 studentName={studentName}
