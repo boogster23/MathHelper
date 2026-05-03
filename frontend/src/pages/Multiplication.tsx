@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Calculator, User, GraduationCap } from 'lucide-react';
-import ProblemGenerator from './components/ProblemGenerator';
-import ProblemDisplay from './components/ProblemDisplay';
-import AnswersPage from './components/AnswersPage';
+import { Calculator, User, GraduationCap, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import ProblemGenerator from '../components/ProblemGenerator';
+import ProblemDisplay from '../components/ProblemDisplay';
+import AnswersPage from '../components/AnswersPage';
 
-function App() {
+function MultiplicationPage() {
   const [studentName, setStudentName] = useState('');
   const [grade, setGrade] = useState('');
   const [numProblems, setNumProblems] = useState(20);
@@ -44,10 +45,18 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium mb-6 no-print transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 no-print">
             <div className="flex items-center gap-3 mb-8">
               <Calculator className="w-10 h-10 text-blue-600" />
-              <h1 className="text-4xl font-bold text-gray-800">Multiplication Practice Generator</h1>
+              <h1 className="text-4xl font-bold text-gray-800">Multiplication Practice</h1>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -114,4 +123,4 @@ function App() {
   );
 }
 
-export default App;
+export default MultiplicationPage;

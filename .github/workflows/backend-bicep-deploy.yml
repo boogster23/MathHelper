@@ -1,7 +1,4 @@
-name: Multiplication - Bicep deploy
-
-# Repository variables (Settings > Secrets and variables > Actions > Variables):
-#   RESOURCE_GROUP, LOCATION, MULT_APP_NAME
+name: Backend - Bicep Infrastructure deploy
 
 on:
   workflow_dispatch:
@@ -21,10 +18,10 @@ jobs:
         env:
           RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
           LOCATION: ${{ vars.LOCATION }}
-          MULT_APP_NAME: ${{ vars.MULT_APP_NAME }}
+          BACKEND_APP_NAME: ${{ vars.BACKEND_APP_NAME }}
         run: |
           az group create -n "$RESOURCE_GROUP" -l "$LOCATION"
           az deployment group create \
             --resource-group "$RESOURCE_GROUP" \
-            --template-file deployment/multiplication-bicep/main.bicep \
-            --parameters appName="$MULT_APP_NAME" location="$LOCATION"
+            --template-file backend/deployment/bicep/main.bicep \
+            --parameters appName="$BACKEND_APP_NAME" location="$LOCATION"

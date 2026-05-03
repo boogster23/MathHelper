@@ -1,0 +1,22 @@
+# Deploy Frontend to Azure Static Web Apps.
+# Variables: none   Secrets: FRONTEND_STATIC_WEB_APPS_API_TOKEN
+
+name: Frontend - Deploy to Static Web App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.FRONTEND_STATIC_WEB_APPS_API_TOKEN }}
+          action: "upload"
+          app_location: frontend
+          output_location: dist
+          app_build_command: npm run build
