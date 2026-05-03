@@ -15,25 +15,25 @@ function HomePage() {
       title: 'Addition',
       description: 'Master adding numbers of all sizes.',
       icon: <Plus className="w-8 h-8 text-green-600" />,
-      link: '#',
+      link: '/addition',
       color: 'green',
-      active: false
+      active: true
     },
     {
       title: 'Subtraction',
       description: 'Get faster at subtracting numbers.',
       icon: <Minus className="w-8 h-8 text-orange-600" />,
-      link: '#',
+      link: '/subtraction',
       color: 'orange',
-      active: false
+      active: true
     },
     {
       title: 'Division',
       description: 'Learn how to divide numbers easily.',
       icon: <Divide className="w-8 h-8 text-purple-600" />,
-      link: '#',
+      link: '/division',
       color: 'purple',
-      active: false
+      active: true
     }
   ];
 

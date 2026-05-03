@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { Calculator, User, GraduationCap, ArrowLeft } from 'lucide-react';
+import { Plus, User, GraduationCap, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProblemGenerator from '../components/ProblemGenerator';
 import ProblemDisplay from '../components/ProblemDisplay';
-import AnswersPage from '../components/AnswersPage';
 
-function MultiplicationPage() {
+function AdditionPage() {
   const [studentName, setStudentName] = useState('');
   const [grade, setGrade] = useState('');
   const [numProblems, setNumProblems] = useState(20);
   const [firstDigits, setFirstDigits] = useState(2);
-  const [secondDigits, setSecondDigits] = useState(1);
+  const [secondDigits, setSecondDigits] = useState(2);
   const [problems, setProblems] = useState<Array<{ num1: number; num2: number }>>([]);
-  const [showAnswers, setShowAnswers] = useState(false);
 
   const generateProblems = () => {
     const newProblems = [];
@@ -30,26 +28,13 @@ function MultiplicationPage() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  if (showAnswers && problems.length > 0) {
-    // Transform problems for AnswersPage if needed, or update AnswersPage to be generic
-    const mappedProblems = problems.map(p => ({ multiplicand: p.num1, multiplier: p.num2 }));
-    return (
-      <AnswersPage
-        studentName={studentName}
-        grade={grade}
-        problems={mappedProblems}
-        onBack={() => setShowAnswers(false)}
-      />
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <Link 
             to="/" 
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium mb-6 no-print transition-colors"
+            className="inline-flex items-center gap-2 text-green-600 hover:text-green-800 font-medium mb-6 no-print transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
@@ -57,8 +42,8 @@ function MultiplicationPage() {
 
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 no-print">
             <div className="flex items-center gap-3 mb-8">
-              <Calculator className="w-10 h-10 text-blue-600" />
-              <h1 className="text-4xl font-bold text-gray-800">Multiplication Practice</h1>
+              <Plus className="w-10 h-10 text-green-600" />
+              <h1 className="text-4xl font-bold text-gray-800">Addition Practice</h1>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -71,7 +56,7 @@ function MultiplicationPage() {
                   type="text"
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                   placeholder="Enter student name"
                 />
               </div>
@@ -85,7 +70,7 @@ function MultiplicationPage() {
                   type="text"
                   value={grade}
                   onChange={(e) => setGrade(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                   placeholder="Enter grade"
                 />
               </div>
@@ -99,9 +84,7 @@ function MultiplicationPage() {
               secondNumberDigits={secondDigits}
               setSecondNumberDigits={setSecondDigits}
               onGenerate={generateProblems}
-              firstLabel="First Number Digits"
-              secondLabel="Second Number Digits"
-              buttonColor="blue"
+              buttonColor="green"
             />
           </div>
 
@@ -111,17 +94,9 @@ function MultiplicationPage() {
                 studentName={studentName}
                 grade={grade}
                 problems={problems}
-                symbol="×"
-                symbolColor="text-blue-600"
+                symbol="+"
+                symbolColor="text-green-600"
               />
-              <div className="bg-white rounded-2xl shadow-xl p-8 no-print">
-                <button
-                  onClick={() => setShowAnswers(true)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl"
-                >
-                  View Answer Key
-                </button>
-              </div>
             </div>
           )}
         </div>
@@ -130,4 +105,4 @@ function MultiplicationPage() {
   );
 }
 
-export default MultiplicationPage;
+export default AdditionPage;

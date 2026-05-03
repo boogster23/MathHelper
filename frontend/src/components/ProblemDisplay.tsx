@@ -1,17 +1,25 @@
 import { FileText } from 'lucide-react';
 
 interface Problem {
-  multiplicand: number;
-  multiplier: number;
+  num1: number;
+  num2: number;
 }
 
 interface ProblemDisplayProps {
   studentName: string;
   grade: string;
   problems: Problem[];
+  symbol: string;
+  symbolColor?: string;
 }
 
-export default function ProblemDisplay({ studentName, grade, problems }: ProblemDisplayProps) {
+export default function ProblemDisplay({ 
+  studentName, 
+  grade, 
+  problems, 
+  symbol,
+  symbolColor = "text-blue-600"
+}: ProblemDisplayProps) {
   return (
     <div className="print-worksheet bg-white rounded-2xl shadow-xl p-8">
       <div className="print-worksheet-header flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
@@ -34,11 +42,11 @@ export default function ProblemDisplay({ studentName, grade, problems }: Problem
               <div className="text-xs font-medium text-gray-500 mb-3 print-worksheet-label">Problem {index + 1}</div>
               <div className="font-mono text-right space-y-1">
                 <div className="text-2xl font-bold text-gray-800 print-worksheet-num">
-                  {problem.multiplicand.toLocaleString()}
+                  {problem.num1.toLocaleString()}
                 </div>
                 <div className="flex items-center justify-end gap-2 text-xl font-bold text-gray-700 print-worksheet-num">
-                  <span className="text-blue-600">×</span>
-                  <span>{problem.multiplier.toLocaleString()}</span>
+                  <span className={symbolColor}>{symbol}</span>
+                  <span>{problem.num2.toLocaleString()}</span>
                 </div>
                 <div className="border-t-2 border-gray-800 pt-3 mt-2 print-worksheet-line">
                   <div className="h-8 print-worksheet-blank"></div>
