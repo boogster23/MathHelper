@@ -39,8 +39,17 @@ function SubtractionPage() {
       let num2 = generateRandomNumber(secondDigits);
       
       // Ensure num1 >= num2 to avoid negative results
+      // But only swap if num1 is actually smaller than num2
       if (num2 > num1) {
-        [num1, num2] = [num2, num1];
+        if (firstDigits >= secondDigits) {
+          // If possible, just re-generate num1 to be larger within the same digit range
+          while (num1 < num2) {
+            num1 = generateRandomNumber(firstDigits);
+          }
+        } else {
+          // If num2 MUST have more digits, we have to swap to keep it positive
+          [num1, num2] = [num2, num1];
+        }
       }
       
       newProblems.push({ num1, num2 });

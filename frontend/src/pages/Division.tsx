@@ -38,11 +38,21 @@ function DivisionPage() {
       // To ensure a whole number result with no remainders:
       // 1. Generate a divisor (num2)
       // 2. Generate a quotient (the answer)
-      // 3. Multiply them to get the dividend (num1)
-      const num2 = generateRandomNumber(divisorDigits);
-      const quotient = generateRandomNumber(quotientDigits);
-      const num1 = num1_value(num2, quotient);
+      let num2 = generateRandomNumber(divisorDigits);
+      let quotient = generateRandomNumber(quotientDigits);
       
+      // Ensure divisor (num2) <= quotient
+      if (num2 > quotient) {
+        if (quotientDigits >= divisorDigits) {
+          while (quotient < num2) {
+            quotient = generateRandomNumber(quotientDigits);
+          }
+        } else {
+          [num2, quotient] = [quotient, num2];
+        }
+      }
+      
+      const num1 = num2 * quotient;
       newProblems.push({ num1, num2 });
     }
     
@@ -54,10 +64,6 @@ function DivisionPage() {
     } catch (err) {
       console.error("Failed to save problems to backend:", err);
     }
-  };
-
-  const num1_value = (divisor: number, quotient: number): number => {
-    return divisor * quotient;
   };
 
   const generateRandomNumber = (digits: number): number => {
@@ -143,6 +149,8 @@ function DivisionPage() {
                 problems={problems}
                 symbol="÷"
                 symbolColor="text-purple-600"
+                variant="longDivision"
+                extraSpacing={true}
               />
             </div>
           )}

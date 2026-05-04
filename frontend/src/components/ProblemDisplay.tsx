@@ -11,6 +11,8 @@ interface ProblemDisplayProps {
   problems: Problem[];
   symbol: string;
   symbolColor?: string;
+  variant?: 'standard' | 'longDivision';
+  extraSpacing?: boolean;
 }
 
 export default function ProblemDisplay({ 
@@ -18,7 +20,9 @@ export default function ProblemDisplay({
   grade, 
   problems, 
   symbol,
-  symbolColor = "text-blue-600"
+  symbolColor = "text-blue-600",
+  variant = 'standard',
+  extraSpacing = false
 }: ProblemDisplayProps) {
   return (
     <div className="print-worksheet bg-white rounded-2xl shadow-xl p-8">
@@ -39,19 +43,38 @@ export default function ProblemDisplay({
         {problems.map((problem, index) => (
           <div key={index} className="flex flex-col print-worksheet-cell">
             <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200 hover:border-blue-300 transition print-worksheet-problem">
-              <div className="text-xs font-medium text-gray-500 mb-3 print-worksheet-label">Problem {index + 1}</div>
-              <div className="font-mono text-right space-y-1">
-                <div className="text-2xl font-bold text-gray-800 print-worksheet-num">
-                  {problem.num1.toLocaleString()}
+              <div className="text-xs font-medium text-gray-500 mb-6 print-worksheet-label">Problem {index + 1}</div>
+              
+              {variant === 'longDivision' ? (
+                <div className="font-mono flex items-start justify-center pt-8 pb-4">
+                  <div className="text-2xl font-bold text-gray-700 pr-2 pt-2 border-r-2 border-gray-800 self-stretch flex items-center">
+                    {problem.num2.toLocaleString()}
+                  </div>
+                  <div className="relative">
+                    <div className="absolute -top-1 left-0 right-0 border-t-2 border-gray-800"></div>
+                    <div className="text-2xl font-bold text-gray-800 px-3 pt-2 min-h-[4rem]">
+                      {problem.num1.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-end gap-2 text-xl font-bold text-gray-700 print-worksheet-num">
-                  <span className={symbolColor}>{symbol}</span>
-                  <span>{problem.num2.toLocaleString()}</span>
+              ) : (
+                <div className="font-mono text-right space-y-1">
+                  <div className="text-2xl font-bold text-gray-800 print-worksheet-num">
+                    {problem.num1.toLocaleString()}
+                  </div>
+                  <div className="flex items-center justify-end gap-2 text-xl font-bold text-gray-700 print-worksheet-num">
+                    <span className={symbolColor}>{symbol}</span>
+                    <span>{problem.num2.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t-2 border-gray-800 pt-3 mt-2 print-worksheet-line">
+                    <div className={extraSpacing ? "h-24" : "h-8"}></div>
+                  </div>
                 </div>
-                <div className="border-t-2 border-gray-800 pt-3 mt-2 print-worksheet-line">
-                  <div className="h-8 print-worksheet-blank"></div>
-                </div>
-              </div>
+              )}
+              
+              {variant === 'longDivision' && extraSpacing && (
+                <div className="h-32 border-b-2 border-dashed border-gray-100 mt-4"></div>
+              )}
             </div>
           </div>
         ))}
