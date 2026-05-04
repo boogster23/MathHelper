@@ -21,5 +21,6 @@ backend/.mypy_cache/
 .env
 .vscode/
 .idea/
+.gemini/
 *.swp
 *.swo
