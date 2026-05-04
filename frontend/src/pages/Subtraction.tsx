@@ -71,6 +71,22 @@ function SubtractionPage() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
+  const handleSetSecondDigits = (value: number) => {
+    if (value > firstDigits) {
+      alert("The subtrahend digits cannot be larger than the minuend digits.");
+      return;
+    }
+    setSecondDigits(value);
+  };
+
+  const handleSetFirstDigits = (value: number) => {
+    setFirstDigits(value);
+    // If first digits decrease below second digits, pull second digits down
+    if (value < secondDigits) {
+      setSecondDigits(value);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       <div className="container mx-auto px-4 py-8">
@@ -123,9 +139,9 @@ function SubtractionPage() {
               numProblems={numProblems}
               setNumProblems={setNumProblems}
               firstNumberDigits={firstDigits}
-              setFirstNumberDigits={setFirstDigits}
+              setFirstNumberDigits={handleSetFirstDigits}
               secondNumberDigits={secondDigits}
-              setSecondNumberDigits={setSecondDigits}
+              setSecondNumberDigits={handleSetSecondDigits}
               onGenerate={generateProblems}
               buttonColor="orange"
             />

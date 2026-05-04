@@ -10,7 +10,7 @@ function DivisionPage() {
   const [studentName, setStudentName] = useState('');
   const [grade, setGrade] = useState('');
   const [numProblems, setNumProblems] = useState(20);
-  const [quotientDigits, setQuotientDigits] = useState(1);
+  const [dividendDigits, setDividendDigits] = useState(2);
   const [divisorDigits, setDivisorDigits] = useState(1);
   const [problems, setProblems] = useState<Array<{ num1: number; num2: number }>>([]);
   const [loading, setLoading] = useState(false);
@@ -32,27 +32,36 @@ function DivisionPage() {
     }
   }, [searchParams]);
 
+  const generateRandomNumberInRange = (min: number, max: number): number => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
   const generateProblems = async () => {
     const newProblems = [];
     for (let i = 0; i < numProblems; i++) {
-      // To ensure a whole number result with no remainders:
-      // 1. Generate a divisor (num2)
-      // 2. Generate a quotient (the answer)
-      let num2 = generateRandomNumber(divisorDigits);
-      let quotient = generateRandomNumber(quotientDigits);
+      // Dividend has 'dividendDigits', Divisor has 'divisorDigits'
+      // 1. Pick a divisor (num2)
+      const num2 = generateRandomNumber(divisorDigits);
       
-      // Ensure divisor (num2) <= quotient
-      if (num2 > quotient) {
-        if (quotientDigits >= divisorDigits) {
-          while (quotient < num2) {
-            quotient = generateRandomNumber(quotientDigits);
-          }
-        } else {
-          [num2, quotient] = [quotient, num2];
-        }
+      // 2. Determine range for quotient so that num2 * quotient has 'dividendDigits'
+      const minDividend = Math.pow(10, dividendDigits - 1);
+      const maxDividend = Math.pow(10, dividendDigits) - 1;
+      
+      let minQuotient = Math.ceil(minDividend / num2);
+      let maxQuotient = Math.floor(maxDividend / num2);
+      
+      // Ensure we have a valid range (e.g. if divisor=99 and dividend=2 digits, minDiv=10, maxDiv=99. quotient can be 1)
+      if (minQuotient > maxQuotient) {
+          // Fallback: if divisor is too large for the dividend range, 
+          // we force quotient to be 1 or swap logic.
+          // Since we validate divisorDigits <= dividendDigits, this is rare but possible
+          // e.g. dividendDigits=2, divisorDigits=2, divisor=99. quotient=1 works.
+          maxQuotient = minQuotient;
       }
       
+      const quotient = generateRandomNumberInRange(minQuotient, maxQuotient);
       const num1 = num2 * quotient;
+      
       newProblems.push({ num1, num2 });
     }
     
@@ -70,6 +79,21 @@ function DivisionPage() {
     const min = Math.pow(10, digits - 1);
     const max = Math.pow(10, digits) - 1;
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  const handleSetDivisorDigits = (value: number) => {
+    if (value > dividendDigits) {
+      alert("The divisor digits cannot be larger than the dividend digits.");
+      return;
+    }
+    setDivisorDigits(value);
+  };
+
+  const handleSetDividendDigits = (value: number) => {
+    setDividendDigits(value);
+    if (value < divisorDigits) {
+      setDivisorDigits(value);
+    }
   };
 
   return (
@@ -123,13 +147,13 @@ function DivisionPage() {
             <ProblemGenerator
               numProblems={numProblems}
               setNumProblems={setNumProblems}
-              firstNumberDigits={divisorDigits}
-              setFirstNumberDigits={setDivisorDigits}
-              secondNumberDigits={quotientDigits}
-              setSecondNumberDigits={setQuotientDigits}
+              firstNumberDigits={dividendDigits}
+              setFirstNumberDigits={handleSetDividendDigits}
+              secondNumberDigits={divisorDigits}
+              setSecondNumberDigits={handleSetDivisorDigits}
               onGenerate={generateProblems}
-              firstLabel="Divisor Digits"
-              secondLabel="Quotient (Answer) Digits"
+              firstLabel="Dividend Digits"
+              secondLabel="Divisor Digits"
               buttonColor="purple"
             />
           </div>
